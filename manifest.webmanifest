@@ -1,0 +1,16 @@
+{
+  "name": "Munich to Budapest - Bikepacking 2026",
+  "short_name": "M→Budapest",
+  "description": "Day-by-day itinerary and route map for the Munich to Budapest charity ride, August 2026.",
+  "start_url": "bikepacking-itinerary-aug2026.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f2f2f7",
+  "theme_color": "#1f2328",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

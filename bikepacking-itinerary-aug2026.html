@@ -2,955 +2,310 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#ffffff">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Bikepacking Itinerary - August 2026</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1f2328">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Tour 2026">
-<link rel="manifest" href="./manifest.json">
-<link rel="apple-touch-icon" href="./icon.svg">
-<title>Bikepacking August 2026 — Munich › Vienna › Budapest</title>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="M&rarr;Budapest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
-  :root {
-    --bg: #ffffff;
-    --surface: #f5f5f7;
-    --surface2: #e8e8ed;
-    --border: #d2d2d7;
-    --text: #1d1d1f;
-    --muted: #6e6e73;
-    --accent-blue: #0071e3;
-    --accent-green: #34c759;
-    --accent-amber: #ff9f0a;
-    --accent-red: #ff3b30;
-    --accent-purple: #bf5af2;
-    --accent-teal: #32ade6;
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;background:#f2f2f7;color:#1c1c1e;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .site-header{background:rgba(255,255,255,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,0.08);position:sticky;top:0;z-index:1000;padding:12px 20px;text-align:center}
+  .site-header .eyebrow{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#8e8e93}
+  .site-header h1{font-size:20px;font-weight:700;letter-spacing:-0.4px;color:#1c1c1e;margin-top:2px}
+  .site-header .subtitle{font-size:13px;color:#636366;margin-top:2px}
+  main{max-width:760px;margin:0 auto;padding:20px 16px 60px}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+  .stat{background:#fff;border-radius:14px;padding:14px 10px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+  .stat .num{font-size:22px;font-weight:700;letter-spacing:-0.5px}
+  .stat .lbl{font-size:11px;color:#8e8e93;text-transform:uppercase;letter-spacing:0.04em;margin-top:2px}
+  #map{height:340px;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,0.08);margin-bottom:8px}
+  .maphint{font-size:12px;color:#8e8e93;text-align:center;margin-bottom:24px}
+  .section-heading{font-size:13px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#8e8e93;margin:28px 0 10px;padding:0 4px}
+  .card{background:#fff;border-radius:16px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+  .day{display:flex;gap:14px;padding:16px 18px;align-items:flex-start}
+  .daybadge{flex-shrink:0;width:52px;text-align:center}
+  .daybadge .dow{font-size:11px;color:#8e8e93;text-transform:uppercase;font-weight:600}
+  .daybadge .dnum{font-size:20px;font-weight:700;line-height:1.1;letter-spacing:-0.5px}
+  .daybadge .mon{font-size:11px;color:#8e8e93}
+  .daymain{flex:1;min-width:0}
+  .dayroute{font-size:16px;font-weight:600;letter-spacing:-0.2px}
+  .daynote{font-size:13px;color:#636366;margin-top:3px}
+  .daymeta{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .pill{font-size:12px;font-weight:600;padding:3px 9px;border-radius:20px;background:#f2f2f7;color:#3a3a3c}
+  .pill.km{background:#e8f0fe;color:#1a4d9e}
+  .pill.el{background:#fff4e5;color:#8a5a00}
+  .pill.tr{background:#f2f2f7;color:#636366}
+  .pill.rest{background:#efe8fe;color:#5b3a9e}
+  .bed{margin-top:9px;padding:9px 12px;background:#f7fbf8;border-left:3px solid #34c759;border-radius:8px;font-size:13px;color:#1c1c1e}
+  .bed b{font-weight:700}
+  .bed .alt{display:block;color:#636366;margin-top:3px}
+  .bed .tel{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:#636366}
+  .card.rest .day{background:#fbfbfd}
+  .card.rest .dayroute{color:#8e8e93}
+  .note-box{background:#fff;border-radius:16px;padding:16px 18px;font-size:14px;color:#3a3a3c;box-shadow:0 1px 3px rgba(0,0,0,0.08);margin-top:14px}
+  .note-box b{color:#1c1c1e}
+  .note-box ul{padding-left:18px;margin-top:6px}
+  .note-box li{margin:5px 0}
+  footer{text-align:center;font-size:12px;color:#8e8e93;margin-top:28px}
+  @media (prefers-color-scheme:dark){
+    body{background:#000;color:#f2f2f7}
+    .site-header{background:rgba(28,28,30,0.9);border-bottom-color:rgba(255,255,255,0.1)}
+    .site-header h1{color:#f2f2f7}
+    .stat,.card,.note-box{background:#1c1c1e}
+    .stat .lbl,.daybadge .dow,.daybadge .mon,.daynote,.maphint{color:#8e8e93}
+    .dayroute{color:#f2f2f7}
+    .pill{background:#2c2c2e;color:#d1d1d6}
+    .card.rest .day{background:#161618}
+    .note-box{color:#d1d1d6}.note-box b{color:#f2f2f7}
+    .bed{background:#122016;color:#e8f5ea}.bed .alt,.bed .tel{color:#9fb8a5}
   }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    padding: 40px 24px;
-  }
-
-  .container { max-width: 1100px; margin: 0 auto; }
-
-  /* ALERT BANNER */
-  .alert {
-    background: rgba(255,59,48,0.05);
-    border: 1px solid rgba(255,59,48,0.18);
-    border-radius: 10px;
-    padding: 14px 18px;
-    margin-bottom: 32px;
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-  }
-  .alert-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
-  .alert-body { font-size: 13px; line-height: 1.6; }
-  .alert-body strong { color: var(--accent-red); font-weight: 600; }
-  .alert-body span { color: var(--muted); }
-
-  .info-banner {
-    background: rgba(52,199,89,0.06);
-    border: 1px solid rgba(52,199,89,0.22);
-    border-radius: 10px;
-    padding: 14px 18px;
-    margin-bottom: 32px;
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-  }
-  .info-banner .alert-body strong { color: var(--accent-green); }
-
-  /* HEADER */
-  .header { margin-bottom: 40px; }
-  .header-label {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 10px;
-  }
-  .header h1 {
-    font-size: 34px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-    margin-bottom: 6px;
-  }
-  .header h1 span { color: var(--accent-blue); }
-  .header-sub { font-size: 14px; color: var(--muted); }
-
-  /* STATS */
-  .stats-row {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
-    margin-bottom: 44px;
-  }
-  .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 18px;
-  }
-  .stat-label {
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 8px;
-  }
-  .stat-value {
-    font-size: 26px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1;
-  }
-  .stat-unit { font-size: 13px; font-weight: 400; color: var(--muted); margin-left: 2px; }
-  .stat-card.blue .stat-value { color: var(--accent-blue); }
-  .stat-card.green .stat-value { color: var(--accent-green); }
-  .stat-card.amber .stat-value { color: var(--accent-amber); }
-  .stat-card.purple .stat-value { color: var(--accent-purple); }
-  .stat-card.teal .stat-value { color: var(--accent-teal); }
-
-  /* SECTION TITLE */
-  .section-title {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 14px;
-  }
-
-  /* CALENDAR */
-  .calendar {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    overflow: hidden;
-    margin-bottom: 44px;
-  }
-  .cal-header {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    border-bottom: 1px solid var(--border);
-  }
-  .cal-header-day {
-    padding: 11px 0;
-    text-align: center;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-  .cal-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-  }
-  .cal-cell {
-    min-height: 95px;
-    border-right: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    padding: 9px 11px;
-  }
-  .cal-cell:nth-child(7n) { border-right: none; }
-  .cal-cell.empty { background: #fbfbfd; }
-  .cal-cell.empty .cal-date { color: #d1d1d6; }
-  .cal-cell.inactive { background: #fbfbfd; }
-  .cal-cell.inactive .cal-date { color: #aeaeb2; }
-  .cal-date {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--muted);
-    margin-bottom: 5px;
-  }
-  .cal-cell.active .cal-date { color: var(--text); }
-
-  .cal-tag {
-    display: inline-block;
-    font-size: 9.5px;
-    font-weight: 600;
-    letter-spacing: 0.03em;
-    padding: 2px 6px;
-    border-radius: 4px;
-    margin-bottom: 4px;
-    white-space: nowrap;
-  }
-  .tag-train    { background: rgba(0,113,227,0.08); color: var(--accent-blue); }
-  .tag-city     { background: rgba(191,90,242,0.08); color: var(--accent-purple); }
-  .tag-ride     { background: rgba(52,199,89,0.1); color: #1a7a35; }
-  .tag-rest     { background: rgba(255,159,10,0.1); color: #a05c00; }
-  .tag-arrive   { background: rgba(50,173,230,0.1); color: #0060a8; }
-  .tag-warn     { background: rgba(255,59,48,0.08); color: var(--accent-red); }
-
-  .cal-desc { font-size: 10px; color: var(--muted); line-height: 1.4; }
-  .cal-km   { font-size: 9.5px; font-weight: 600; color: var(--accent-green); margin-top: 3px; }
-  .cal-batt { font-size: 9px; color: var(--accent-amber); margin-top: 1px; }
-
-  /* TABLES */
-  .stage-section { margin-bottom: 44px; }
-  .stage-section h2 {
-    font-size: 17px;
-    font-weight: 600;
-    margin-bottom: 14px;
-    letter-spacing: -0.01em;
-  }
-  .route-label {
-    display: inline-block;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 3px 9px;
-    border-radius: 4px;
-    margin-right: 8px;
-    vertical-align: middle;
-  }
-  .label-mv { background: rgba(52,199,89,0.1); color: #1a7a35; }
-  .label-vb { background: rgba(0,113,227,0.08); color: var(--accent-blue); }
-
-  table { width: 100%; border-collapse: collapse; }
-  thead th {
-    text-align: left;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-    color: var(--muted);
-    padding: 10px 14px;
-    border-bottom: 1px solid var(--border);
-  }
-  tbody tr { border-bottom: 1px solid var(--border); }
-  tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: var(--surface2); }
-  tbody td { padding: 13px 14px; font-size: 12.5px; vertical-align: middle; }
-
-  .stage-num {
-    font-size: 10px; font-weight: 700; color: var(--muted);
-    background: var(--surface2); border-radius: 4px;
-    padding: 2px 7px; display: inline-block;
-  }
-  .stage-num.rest-marker {
-    background: rgba(245,166,35,0.12); color: var(--accent-amber);
-  }
-  .from-to { font-weight: 500; font-size: 12.5px; }
-  .arrow { color: var(--muted); margin: 0 4px; }
-  .km-cell { font-weight: 700; font-size: 13px; color: var(--accent-green); white-space: nowrap; }
-  .elev-cell { font-size: 11.5px; color: var(--muted); white-space: nowrap; }
-  .elev-up { color: var(--accent-amber); }
-  .elev-down { color: #0071e3; }
-  .date-cell { font-size: 11.5px; color: var(--muted); font-weight: 500; white-space: nowrap; }
-  .note-cell { font-size: 11.5px; color: var(--muted); line-height: 1.5; }
-
-  .batt-pill {
-    display: inline-flex; align-items: center; gap: 4px;
-    font-size: 10px; font-weight: 600;
-    padding: 2px 7px; border-radius: 20px; white-space: nowrap;
-  }
-  .batt-ok     { background: rgba(52,199,89,0.1); color: #1a7a35; }
-  .batt-swap   { background: rgba(255,159,10,0.1); color: #a05c00; }
-  .batt-hard   { background: rgba(255,59,48,0.09); color: var(--accent-red); }
-
-  /* BATTERY STRATEGY */
-  .batt-section {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 24px;
-    margin-bottom: 44px;
-  }
-  .batt-section h3 {
-    font-size: 14px; font-weight: 600; margin-bottom: 16px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .batt-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-  }
-  .batt-col h4 {
-    font-size: 11px; font-weight: 600;
-    letter-spacing: 0.08em; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 10px;
-  }
-  .batt-col ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-  .batt-col li {
-    font-size: 12px; color: var(--muted); line-height: 1.5;
-    padding-left: 14px; position: relative;
-  }
-  .batt-col li::before { content: '—'; position: absolute; left: 0; color: var(--border); }
-  .batt-col li strong { color: var(--text); font-weight: 500; }
-
-  /* INSURANCE */
-  .insurance-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-bottom: 44px;
-  }
-  .ins-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 18px;
-  }
-  .ins-card h3 { font-size: 13px; font-weight: 600; margin-bottom: 10px; }
-  .ins-card ul { list-style: none; display: flex; flex-direction: column; gap: 7px; }
-  .ins-card li { font-size: 12px; color: var(--muted); padding-left: 14px; position: relative; line-height: 1.4; }
-  .ins-card li::before { content: '—'; position: absolute; left: 0; color: var(--border); }
-  .ins-card li strong { color: var(--text); font-weight: 500; }
-  .ins-card.warn { border-color: rgba(255,59,48,0.25); }
-  .ins-card.warn h3 { color: var(--accent-red); }
-  .ins-card.ok { border-color: rgba(52,199,89,0.28); }
-  .ins-card.ok h3 { color: #1a7a35; }
-
-  /* ACCOMMODATION */
-  .accom-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-bottom: 44px;
-  }
-  .accom-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 18px;
-  }
-  .accom-city { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
-  .accom-card h3 { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
-  .accom-type {
-    display: inline-block; font-size: 9.5px; font-weight: 600;
-    padding: 2px 7px; border-radius: 4px; margin-bottom: 8px;
-  }
-  .type-certified { background: rgba(52,199,89,0.1); color: #1a7a35; }
-  .type-hotel     { background: rgba(0,113,227,0.08); color: var(--accent-blue); }
-  .type-camping   { background: rgba(255,159,10,0.1); color: #a05c00; }
-  .accom-notes { font-size: 11.5px; color: var(--muted); line-height: 1.5; }
-  .accom-link { display: block; margin-top: 8px; font-size: 11px; color: var(--accent-blue); text-decoration: none; }
-  .accom-link:hover { text-decoration: underline; }
-
-  /* BOOKING CARDS */
-  .booking-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 44px;
-  }
-  .booking-card {
-    background: var(--surface);
-    border: 1px solid rgba(52,199,89,0.22);
-    border-radius: 12px;
-    padding: 18px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .booking-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-  }
-  .booking-route {
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-  }
-  .booking-route .arrow { color: var(--accent-green); margin: 0 5px; }
-  .booking-confirmed {
-    font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
-    text-transform: uppercase; color: var(--accent-green);
-    background: rgba(62,207,142,0.1); padding: 3px 8px; border-radius: 4px;
-    white-space: nowrap;
-  }
-  .booking-train {
-    font-size: 13px; font-weight: 500; color: var(--accent-blue);
-  }
-  .booking-time {
-    font-size: 22px; font-weight: 700; letter-spacing: -0.02em; color: var(--text);
-    display: flex; align-items: baseline; gap: 8px;
-  }
-  .booking-time .sep { color: var(--muted); font-weight: 300; }
-  .booking-time .arr { color: var(--muted); font-size: 16px; }
-  .booking-meta {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    padding-top: 10px;
-    border-top: 1px solid var(--border);
-  }
-  .booking-meta-item { display: flex; flex-direction: column; gap: 3px; }
-  .booking-meta-label {
-    font-size: 9.5px; font-weight: 600; letter-spacing: 0.08em;
-    text-transform: uppercase; color: var(--muted);
-  }
-  .booking-meta-value { font-size: 12px; font-weight: 500; color: var(--text); }
-  .booking-code {
-    font-family: monospace; font-size: 13px; font-weight: 700;
-    color: var(--accent-amber); letter-spacing: 0.05em;
-  }
-
-  /* FOOTER */
-  .footer {
-    border-top: 1px solid var(--border);
-    padding-top: 20px;
-    font-size: 11.5px;
-    color: var(--muted);
-    display: flex;
-    justify-content: space-between;
-  }
-
-  /* ===== MOBILE / PWA ===== */
-  @media (max-width: 700px) {
-    body { padding: 24px 16px; }
-    .header h1 { font-size: 24px; }
-    .header-sub { font-size: 12px; }
-    .stats-row { grid-template-columns: repeat(2, 1fr); }
-    .stats-row .stat-card:last-child { grid-column: 1 / -1; }
-    .stat-value { font-size: 22px; }
-    .calendar {
-      overflow-x: auto;
-      overflow-y: hidden;
-      -webkit-overflow-scrolling: touch;
-    }
-    .cal-header { min-width: 490px; }
-    .cal-grid { min-width: 490px; }
-    .cal-cell { min-height: 80px; padding: 6px 7px; }
-    .cal-tag { font-size: 8.5px; }
-    table { min-width: 620px; }
-    .booking-grid { grid-template-columns: 1fr; }
-    .booking-meta { grid-template-columns: 1fr 1fr; }
-    .booking-time { font-size: 18px; }
-    .batt-grid { grid-template-columns: 1fr; }
-    .insurance-grid { grid-template-columns: 1fr; }
-    .accom-grid { grid-template-columns: 1fr; }
-    .footer { flex-direction: column; gap: 8px; }
-    .stage-section h2 { font-size: 14px; }
-  }
+  @media (max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
-<div class="container">
-
-  <!-- HEADER -->
-  <div class="header">
-    <div class="header-label">Bikepacking Tour · August 2026</div>
-    <h1>Munich <span>›</span> Vienna <span>›</span> Budapest</h1>
-    <div class="header-sub">Stromer ST5 · 2x 983Wh · EuroVelo 6 / Danube Cycle Path · 14 Aug – 27 Aug</div>
+<header class="site-header">
+  <div class="eyebrow">Bikepacking Tour &middot; August 2026</div>
+  <h1>Munich &rsaquo; Vienna &rsaquo; Budapest</h1>
+  <div class="subtitle">14-27 August 2026 &nbsp;&middot;&nbsp; Danube / EuroVelo 6</div>
+</header>
+<main>
+  <div class="stats">
+    <div class="stat"><div class="num">~812</div><div class="lbl">km total</div></div>
+    <div class="stat"><div class="num">9</div><div class="lbl">riding days</div></div>
+    <div class="stat"><div class="num">3</div><div class="lbl">rest days</div></div>
+    <div class="stat"><div class="num">~90</div><div class="lbl">km / ride day</div></div>
   </div>
 
-  <div class="info-banner">
-    <div class="alert-icon">✓</div>
-    <div class="alert-body">
-      <strong>Insurance confirmed — all risks covered</strong><br>
-      <span>HUK-COBURG renewed to Feb 2027 (670/521924-Q, plate 262 KRL) — third-party liability 100 Mio. € EU-wide. Leasing contract (MLF Mercator, Vertrags-Nr. 1082429) includes <strong>Vollkaskoversicherung + Mobilitätsgarantie + Diebstahl Ersatz</strong> — theft, damage, and total loss covered. Carry Versicherungsschein at all times — legally mandatory.</span>
-    </div>
-  </div>
+  <div id="map"></div>
+  <div class="maphint">Solid line = mapped Komoot track. Dashed = final leg into Budapest, still to map.</div>
 
-  <!-- CONFIRMED BOOKINGS -->
-  <div class="section-title">Confirmed Train Bookings</div>
-  <div class="booking-grid">
+  <div class="section-heading">Day by Day</div>
 
-    <div class="booking-card">
-      <div class="booking-header">
-        <div class="booking-route">Berlin Hbf <span class="arrow">›</span> München Hbf</div>
-        <span class="booking-confirmed">✓ Confirmed</span>
-      </div>
-      <div class="booking-train">ICE 509 · Thu 14 Aug 2026 · 2nd Class · Sparpreis</div>
-      <div class="booking-time">
-        12:29 <span class="sep">—</span> <span class="arr">17:09</span>
-      </div>
-      <div class="booking-meta">
-        <div class="booking-meta-item">
-          <span class="booking-meta-label">Wagon / Seat</span>
-          <span class="booking-meta-value">Wg. 1 · Pl. 104</span>
-        </div>
-        <div class="booking-meta-item">
-          <span class="booking-meta-label">Bike</span>
-          <span class="booking-meta-value">✓ Reserved</span>
-        </div>
-        <div class="booking-meta-item">
-          <span class="booking-meta-label">Price</span>
-          <span class="booking-meta-value">€74.23</span>
-        </div>
-        <div class="booking-meta-item">
-          <span class="booking-meta-label">Ticket Code</span>
-          <span class="booking-code">HDT2YWPA</span>
-        </div>
-        <div class="booking-meta-item">
-          <span class="booking-meta-label">Order Nr.</span>
-          <span class="booking-meta-value">489558093248</span>
-        </div>
-        <div class="booking-meta-item">
-          <span class="booking-meta-label">Res. Nr.</span>
-          <span class="booking-meta-value">804490287488</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="booking-card">
-      <div class="booking-header">
-        <div class="booking-route">Budapest-Nyugati <span class="arrow">›</span> Berlin Hbf</div>
-        <span class="booking-confirmed">✓ Confirmed</span>
-      </div>
-      <div class="booking-train">RJ 174 (Railjet) · Thu 27 Aug 2026 · 1st Class · Sparpreis Europa</div>
-      <div class="booking-time">
-        07:30 <span class="sep">—</span> <span class="arr">18:29</span>
-      </div>
-      <div class="booking-meta">
-        <div class="booking-meta-item">
-          <span class="booking-meta-label">Wagon / Seat</span>
-          <span class="booking-meta-value">Wg. 255 · Pl. 82 · Window</span>
-        </div>
-        <div class="booking-meta-item">
-          <span class="booking-meta-label">Bike</span>
-          <span class="booking-meta-value">✓ Reserved · WiFi</span>
-        </div>
-        <div class="booking-meta-item">
-          <span class="booking-meta-label">Price</span>
-          <span class="booking-meta-value">€107.45</span>
-        </div>
-        <div class="booking-meta-item">
-          <span class="booking-meta-label">Ticket Code</span>
-          <span class="booking-code">73GLEFRQ</span>
-        </div>
-        <div class="booking-meta-item">
-          <span class="booking-meta-label">Order Nr.</span>
-          <span class="booking-meta-value">259527685095</span>
-        </div>
-        <div class="booking-meta-item">
-          <span class="booking-meta-label">Res. Nr.</span>
-          <span class="booking-meta-value">586526278345</span>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- STATS -->
-  <div class="section-title">Trip Overview</div>
-  <div class="stats-row">
-    <div class="stat-card blue">
-      <div class="stat-label">Total Distance</div>
-      <div class="stat-value">750<span class="stat-unit">km</span></div>
-    </div>
-    <div class="stat-card green">
-      <div class="stat-label">Riding Days</div>
-      <div class="stat-value">8<span class="stat-unit">days</span></div>
-    </div>
-    <div class="stat-card amber">
-      <div class="stat-label">Elevation Gain</div>
-      <div class="stat-value">2,132<span class="stat-unit">m</span></div>
-    </div>
-    <div class="stat-card purple">
-      <div class="stat-label">Battery Capacity</div>
-      <div class="stat-value">1,966<span class="stat-unit">Wh</span></div>
-    </div>
-    <div class="stat-card teal">
-      <div class="stat-label">Trip Duration</div>
-      <div class="stat-value">14<span class="stat-unit">days</span></div>
-    </div>
-  </div>
-
-  <!-- CALENDAR -->
-  <div class="section-title">August 2026 Calendar</div>
-  <div class="calendar">
-    <div class="cal-header">
-      <div class="cal-header-day">Mon</div>
-      <div class="cal-header-day">Tue</div>
-      <div class="cal-header-day">Wed</div>
-      <div class="cal-header-day">Thu</div>
-      <div class="cal-header-day">Fri</div>
-      <div class="cal-header-day">Sat</div>
-      <div class="cal-header-day">Sun</div>
-    </div>
-    <div class="cal-grid">
-      <!-- Filler week -->
-      <div class="cal-cell inactive"><div class="cal-date">3</div></div>
-      <div class="cal-cell inactive"><div class="cal-date">4</div></div>
-      <div class="cal-cell inactive"><div class="cal-date">5</div></div>
-      <div class="cal-cell inactive"><div class="cal-date">6</div></div>
-      <div class="cal-cell inactive"><div class="cal-date">7</div></div>
-      <div class="cal-cell inactive"><div class="cal-date">8</div></div>
-      <div class="cal-cell inactive"><div class="cal-date">9</div></div>
-
-      <div class="cal-cell inactive"><div class="cal-date">10</div></div>
-      <div class="cal-cell inactive"><div class="cal-date">11</div></div>
-      <div class="cal-cell inactive"><div class="cal-date">12</div></div>
-      <div class="cal-cell inactive"><div class="cal-date">13</div></div>
-
-      <!-- 14 Fri -->
-      <div class="cal-cell active">
-        <div class="cal-date">14 Fri</div>
-        <span class="cal-tag tag-train">🚆 ICE 509</span>
-        <div class="cal-desc">Berlin Hbf 12:29 → Munich Hbf 17:09</div>
-        <div class="cal-batt" style="color:var(--accent-green);">✓ Wg. 1 · Pl. 104 · Bike booked</div>
-      </div>
-      <!-- 15 Sat -->
-      <div class="cal-cell active">
-        <div class="cal-date">15 Sat</div>
-        <span class="cal-tag tag-city">🏙️ Munich</span>
-        <div class="cal-desc">Meet buddy · Gear check · Rest</div>
-      </div>
-      <!-- 16 Sun -->
-      <div class="cal-cell active">
-        <div class="cal-date">16 Sun</div>
-        <span class="cal-tag tag-ride">🚴 Stage 1</span>
-        <div class="cal-desc">Ismaning → Landau/Isar</div>
-        <div class="cal-km">108.4 km · ↑225m</div>
-        <div class="cal-batt">⚡ Swap B1→B2 at ~70km</div>
-      </div>
-
-      <!-- 17 Mon -->
-      <div class="cal-cell active">
-        <div class="cal-date">17 Mon</div>
-        <span class="cal-tag tag-ride">🚴 Stage 2</span>
-        <div class="cal-desc">Landau → Freinberg</div>
-        <div class="cal-km">76.7 km · ↑220m</div>
-        <div class="cal-batt">⚡ Single battery OK</div>
-      </div>
-      <!-- 18 Tue -->
-      <div class="cal-cell active">
-        <div class="cal-date">18 Tue</div>
-        <span class="cal-tag tag-warn">⚠️ Stage 3</span>
-        <div class="cal-desc">Freinberg → Luftenberg</div>
-        <div class="cal-km">102.8 km · ↑542m</div>
-        <div class="cal-batt">⚡ Hardest day — swap early</div>
-      </div>
-      <!-- 19 Wed -->
-      <div class="cal-cell active">
-        <div class="cal-date">19 Wed</div>
-        <span class="cal-tag tag-rest">☀️ Rest — Linz</span>
-        <div class="cal-desc">Explore Austria's 3rd city. Full charge both batteries.</div>
-      </div>
-      <!-- 20 Thu -->
-      <div class="cal-cell active">
-        <div class="cal-date">20 Thu</div>
-        <span class="cal-tag tag-ride">🚴 Stage 4</span>
-        <div class="cal-desc">Luftenberg → Schwallenbach</div>
-        <div class="cal-km">102.1 km · ↑274m</div>
-        <div class="cal-batt">⚡ Swap at ~70km · Wachau</div>
-      </div>
-      <!-- 21 Fri -->
-      <div class="cal-cell active">
-        <div class="cal-date">21 Fri</div>
-        <span class="cal-tag tag-ride">🚴 Stage 5</span>
-        <div class="cal-desc">Schwallenbach → Vienna</div>
-        <div class="cal-km">101.4 km · ↑266m</div>
-        <div class="cal-batt">⚡ Swap at ~70km · Arrive 🎉</div>
-      </div>
-      <!-- 22 Sat -->
-      <div class="cal-cell active">
-        <div class="cal-date">22 Sat</div>
-        <span class="cal-tag tag-arrive">🏛️ Vienna</span>
-        <div class="cal-desc">Night 1 · Explore · Charge both batteries</div>
-      </div>
-      <!-- 23 Sun -->
-      <div class="cal-cell active">
-        <div class="cal-date">23 Sun</div>
-        <span class="cal-tag tag-ride">🚴 Stage 6</span>
-        <div class="cal-desc">Depart AM · Kagran → Dunajská riviéra</div>
-        <div class="cal-km">84.5 km · ↑128m</div>
-        <div class="cal-batt">⚡ One battery comfortable</div>
-      </div>
-
-      <!-- 24 Mon -->
-      <div class="cal-cell active">
-        <div class="cal-date">24 Mon</div>
-        <span class="cal-tag tag-ride">🚴 Stage 7</span>
-        <div class="cal-desc">Dunajská riviéra → Molaj</div>
-        <div class="cal-km">90.9 km · ↑75m</div>
-        <div class="cal-batt">⚡ Flattest day of trip</div>
-      </div>
-      <!-- 25 Tue -->
-      <div class="cal-cell active">
-        <div class="cal-date">25 Tue</div>
-        <span class="cal-tag tag-ride">🚴 Stage 8</span>
-        <div class="cal-desc">Molaj → Budapest</div>
-        <div class="cal-km">83.1 km · ↑402m</div>
-        <div class="cal-batt">⚡ Hills — swap if needed · Arrive!</div>
-      </div>
-      <!-- 26 Wed -->
-      <div class="cal-cell active">
-        <div class="cal-date">26 Wed</div>
-        <span class="cal-tag tag-arrive">🏛️ Budapest</span>
-        <div class="cal-desc">Night 1 · Rest · Full charge both</div>
-      </div>
-      <!-- 27 Thu -->
-      <div class="cal-cell active">
-        <div class="cal-date">27 Thu</div>
-        <span class="cal-tag tag-train">🚆 RJ 174</span>
-        <div class="cal-desc">Nyugati 07:30 → Berlin Hbf 18:29</div>
-        <div class="cal-batt" style="color:var(--accent-green);">✓ Wg. 255 · Pl. 82 · Bike booked</div>
-      </div>
-      <!-- 28 Fri -->
-      <div class="cal-cell inactive"><div class="cal-date">28</div></div>
-      <!-- 29 Sat -->
-      <div class="cal-cell inactive"><div class="cal-date">29</div></div>
-      <!-- 30 Sun -->
-      <div class="cal-cell inactive"><div class="cal-date">30</div></div>
-    </div>
-  </div>
-
-  <!-- STAGE TABLE: Munich → Vienna -->
-  <div class="stage-section">
-    <h2><span class="route-label label-mv">Munich → Vienna</span> Stage Breakdown</h2>
-    <div class="calendar" style="border-radius:12px;">
-      <table>
-        <thead>
-          <tr>
-            <th>Stage</th><th>Date</th><th>Route</th><th>Distance</th><th>Elevation</th><th>Dual Battery</th><th>Notes</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><span class="stage-num">1</span></td>
-            <td class="date-cell">Sun 16 Aug</td>
-            <td><span class="from-to">Ismaning <span class="arrow">›</span> Landau/Isar</span></td>
-            <td class="km-cell">108.4 km</td>
-            <td class="elev-cell"><span class="elev-up">↑225m</span> <span class="elev-down">↓376m</span></td>
-            <td><span class="batt-pill batt-swap">⚡ Swap ~70km</span></td>
-            <td class="note-cell">Longest day. Swap B1 to B2 around Landshut (~65km). Relatively flat so B2 sees you home with room to spare.</td>
-          </tr>
-          <tr>
-            <td><span class="stage-num">2</span></td>
-            <td class="date-cell">Mon 17 Aug</td>
-            <td><span class="from-to">Landau/Isar <span class="arrow">›</span> Freinberg</span></td>
-            <td class="km-cell">76.7 km</td>
-            <td class="elev-cell"><span class="elev-up">↑220m</span> <span class="elev-down">↓265m</span></td>
-            <td><span class="batt-pill batt-ok">✓ B1 only</span></td>
-            <td class="note-cell">Shortest stage. Single battery at 76.7km is comfortable at your 70–80km real range in eco/mixed mode. Crosses into Austria.</td>
-          </tr>
-          <tr>
-            <td><span class="stage-num">3</span></td>
-            <td class="date-cell">Tue 18 Aug</td>
-            <td><span class="from-to">Freinberg <span class="arrow">›</span> Luftenberg</span></td>
-            <td class="km-cell">102.8 km</td>
-            <td class="elev-cell"><span class="elev-up">↑542m</span> <span class="elev-down">↓598m</span></td>
-            <td><span class="batt-pill batt-hard">⚡ Swap early ~60km</span></td>
-            <td class="note-cell">Hardest day — 542m elevation drains battery significantly faster. Swap B1 to B2 before the main climbs, around 55–60km. Use Recup on every descent. Start fully charged.</td>
-          </tr>
-          <tr>
-            <td><span class="stage-num rest-marker">R</span></td>
-            <td class="date-cell">Wed 19 Aug</td>
-            <td><span class="from-to" style="color:var(--accent-amber);">Linz — Rest Day</span></td>
-            <td class="km-cell" style="color:var(--accent-amber);">0 km</td>
-            <td class="elev-cell">—</td>
-            <td><span class="batt-pill batt-ok">✓ Full charge both</span></td>
-            <td class="note-cell">Luftenberg is 10km from Linz. Charge both batteries fully (~5.5h each — either sequentially or if you have 2 chargers, parallel). Explore Linz.</td>
-          </tr>
-          <tr>
-            <td><span class="stage-num">4</span></td>
-            <td class="date-cell">Thu 20 Aug</td>
-            <td><span class="from-to">Luftenberg <span class="arrow">›</span> Schwallenbach</span></td>
-            <td class="km-cell">102.1 km</td>
-            <td class="elev-cell"><span class="elev-up">↑274m</span> <span class="elev-down">↓311m</span></td>
-            <td><span class="batt-pill batt-swap">⚡ Swap ~65–70km</span></td>
-            <td class="note-cell">Into the Wachau Valley — UNESCO World Heritage, vineyards and castles. Swap mid-stage. Schwallenbach is a small village; book ahead.</td>
-          </tr>
-          <tr>
-            <td><span class="stage-num">5</span></td>
-            <td class="date-cell">Fri 21 Aug</td>
-            <td><span class="from-to">Schwallenbach <span class="arrow">›</span> Vienna</span></td>
-            <td class="km-cell">101.4 km</td>
-            <td class="elev-cell"><span class="elev-up">↑266m</span> <span class="elev-down">↓283m</span></td>
-            <td><span class="batt-pill batt-swap">⚡ Swap ~65–70km</span></td>
-            <td class="note-cell">Arrival day. Route via Krems and Tulln into Vienna. Swap before Tulln (~70km). Roll into Vienna on a fresh battery — celebrate.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- STAGE TABLE: Vienna → Budapest -->
-  <div class="stage-section">
-    <h2><span class="route-label label-vb">Vienna → Budapest</span> Stage Breakdown</h2>
-    <div class="calendar" style="border-radius:12px;">
-      <table>
-        <thead>
-          <tr>
-            <th>Stage</th><th>Date</th><th>Route</th><th>Distance</th><th>Elevation</th><th>Dual Battery</th><th>Notes</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><span class="stage-num">6</span></td>
-            <td class="date-cell">Sun 23 Aug</td>
-            <td><span class="from-to">Kagran <span class="arrow">›</span> Dunajská riviéra</span></td>
-            <td class="km-cell">84.5 km</td>
-            <td class="elev-cell"><span class="elev-up">↑128m</span> <span class="elev-down">↓161m</span></td>
-            <td><span class="batt-pill batt-ok">✓ B1 only</span></td>
-            <td class="note-cell">Depart Vienna AM. Flat Danube plain into Slovakia. 84.5km is borderline — ride eco mode and you should clear it on B1 alone.</td>
-          </tr>
-          <tr>
-            <td><span class="stage-num">7</span></td>
-            <td class="date-cell">Mon 24 Aug</td>
-            <td><span class="from-to">Dunajská riviéra <span class="arrow">›</span> Molaj</span></td>
-            <td class="km-cell">90.9 km</td>
-            <td class="elev-cell"><span class="elev-up">↑75m</span> <span class="elev-down">↓93m</span></td>
-            <td><span class="batt-pill batt-swap">⚡ Swap ~75km</span></td>
-            <td class="note-cell">Flattest day of the entire trip — only 75m elevation. Swap B1 to B2 around 75km as insurance. Passes through the Bratislava region.</td>
-          </tr>
-          <tr>
-            <td><span class="stage-num">8</span></td>
-            <td class="date-cell">Tue 25 Aug</td>
-            <td><span class="from-to">Molaj <span class="arrow">›</span> Budapest</span></td>
-            <td class="km-cell">83.1 km</td>
-            <td class="elev-cell"><span class="elev-up">↑402m</span> <span class="elev-down">↓389m</span></td>
-            <td><span class="batt-pill batt-swap">⚡ Swap if needed</span></td>
-            <td class="note-cell">Most elevation of the V→B leg. Hungarian hills and the Danube Bend into Budapest. Swap if B1 gets below 25%. Dramatic finish. Arrive by early afternoon.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- BATTERY STRATEGY -->
-  <div class="section-title">Dual Battery Strategy — 2x 983Wh</div>
-  <div class="batt-section">
-    <h3>⚡ 2x 983Wh = ~1,966Wh total · ~140–160km combined realistic range</h3>
-    <div class="batt-grid">
-      <div class="batt-col">
-        <h4>Daily Routine</h4>
-        <ul>
-          <li><strong>Start every day on B1 fully charged.</strong> B2 also fully charged and carried on the rack.</li>
-          <li><strong>Swap trigger:</strong> When B1 hits ~20–25% remaining (not zero — buffer for headwinds, detours).</li>
-          <li><strong>Stage 3 exception:</strong> Swap earlier (~55–60km) due to the 542m elevation load on the motor.</li>
-          <li>Use <strong>Recup</strong> on every descent — especially the Wachau Valley (Stage 4) and Danube Bend (Stage 8). Set it to a firm strength level, not just light braking.</li>
-        </ul>
-      </div>
-      <div class="batt-col">
-        <h4>Charging</h4>
-        <ul>
-          <li><strong>5.5h per battery</strong> to full. If you only have one charger, do B1 first (arrives more depleted), then B2 overnight.</li>
-          <li>Carry a <strong>short extension lead</strong> — guesthouses often have awkward socket placement relative to bike storage.</li>
-          <li>On the <strong>rest day in Linz</strong> (Day 4), charge both during the day — you have 10+ hours available. Best opportunity of the trip.</li>
-          <li>In <strong>Vienna and Budapest</strong>, confirm the hotel has a secure room or corridor you can leave the bike in with the charger running.</li>
-        </ul>
+  <div class="card">
+    <div class="day">
+      <div class="daybadge"><div class="dow">Fri</div><div class="dnum">14</div><div class="mon">Aug</div></div>
+      <div class="daymain">
+        <div class="dayroute">Travel day &middot; Berlin &rarr; Eichstatt</div>
+        <div class="daynote">Train into Nurnberg Hbf, scheduled arrival <b>15:52</b>. Claus collects you and the bike and drives to Eichstatt. Gear check tonight, not tomorrow morning.</div>
+        <div class="daymeta"><span class="pill tr">Train &middot; arr. Nurnberg 15:52</span></div>
+        <div class="bed"><b>Bed:</b> Claus's guest room, Eichstatt &mdash; free</div>
       </div>
     </div>
   </div>
 
-  <!-- INSURANCE SUMMARY -->
-  <div class="section-title">Insurance — Full Coverage Confirmed</div>
-  <div class="insurance-grid">
-    <div class="ins-card ok">
-      <h3>✓ HUK-COBURG — Third-Party</h3>
-      <ul>
-        <li>Policy: <strong>670/521924-Q</strong> · Plate: <strong>262 KRL</strong></li>
-        <li>Kfz-Haftpflicht: <strong>100 Mio. €</strong> third-party liability</li>
-        <li>Renewed to <strong>Feb 2027</strong> — covers the full trip</li>
-        <li>EU-wide: DE, AT, SK, HU all covered. Excludes Russia + Belarus only.</li>
-        <li>Annual premium: €27. Carry the Versicherungsschein at all times — legally mandatory.</li>
-      </ul>
-    </div>
-    <div class="ins-card ok">
-      <h3>✓ Leasing — Vollkasko</h3>
-      <ul>
-        <li>Leasinggeber: <strong>MLF Mercator-Leasing</strong> · Vertrags-Nr. 1082429</li>
-        <li><strong>Vollkaskoversicherung + Mobilitätsgarantie</strong> included in contract</li>
-        <li><strong>Diebstahl Ersatz</strong> (theft replacement) — named Zusatzvereinbarung</li>
-        <li>Covers: theft, damage, total loss of the ST5</li>
-        <li>Insurance rate: €19.02/mo (included in €151.79/mo total lease payment)</li>
-      </ul>
-    </div>
-    <div class="ins-card ok">
-      <h3>✓ Bike Specs — Train Reference</h3>
-      <ul>
-        <li>VIN: <strong>TBNST5S700SRL0749</strong> · EU L1e-B</li>
-        <li>Weight (running order): <strong>25 kg</strong></li>
-        <li>Dimensions: <strong>1854 × 713 × 1049 mm</strong> (L×W×H)</li>
-        <li>Wheelbase: 1109 mm · Tyres: 57-584</li>
-        <li>Bike reserved on both trains — RJ 174 (27 Aug) and ICE 509 (14 Aug)</li>
-      </ul>
+  <div class="card">
+    <div class="day">
+      <div class="daybadge"><div class="dow">Sat</div><div class="dnum">15</div><div class="mon">Aug</div></div>
+      <div class="daymain">
+        <div class="dayroute">Eichstatt &rarr; Landshut</div>
+        <div class="daynote">Ride 1. Altmuhl valley, then across to the Isar. Rolling start.</div>
+        <div class="daymeta"><span class="pill km">102 km</span><span class="pill el">&uarr; 544 m</span></div>
+        <div class="bed"><b>Bed:</b> Stadthotel Herzog Ludwig, Neustadt 519 &mdash; Bett+Bike, e-bike charging, own washer/dryer. EUR 99 double incl. breakfast.<span class="tel">+49 871 974050</span><span class="alt">Alt: Gasthof Meyer (free bike garage, on the Isar)</span></div>
+      </div>
     </div>
   </div>
 
-  <!-- ACCOMMODATION -->
-  <div class="section-title">Accommodation — Key Stops</div>
-  <div class="accom-grid">
-    <div class="accom-card">
-      <div class="accom-city">Night 1 · 16 Aug</div>
-      <h3>Landau an der Isar</h3>
-      <span class="accom-type type-certified">ADFC Bett+Bike</span>
-      <div class="accom-notes">Small Bavarian town. Limited options — book ahead in August. Confirm e-bike charging access before arrival. Gasthäuser common here.</div>
-    </div>
-    <div class="accom-card">
-      <div class="accom-city">Night 2 · 17 Aug</div>
-      <h3>Freinberg / Passau</h3>
-      <span class="accom-type type-hotel">Hotel / Pension</span>
-      <div class="accom-notes">Passau (city on 3 rivers) is nearby — worth the slight detour for a better stay. Good hotel options, bike storage common.</div>
-    </div>
-    <div class="accom-card">
-      <div class="accom-city">Nights 3–4 · 18–19 Aug</div>
-      <h3>Linz (Rest Day)</h3>
-      <span class="accom-type type-hotel">City Hotel</span>
-      <div class="accom-notes">Stay 2 nights — arrive after Stage 3, full rest day. Ars Electronica, great food scene. Luftenberg is 10km out; stay central and Uber back to the bike or ride in. Book a hotel with bike storage and twin power sockets.</div>
-    </div>
-    <div class="accom-card">
-      <div class="accom-city">Night 5 · 20 Aug</div>
-      <h3>Schwallenbach / Wachau</h3>
-      <span class="accom-type type-certified">ADFC Bett+Bike</span>
-      <div class="accom-notes">UNESCO Wachau Valley — vineyard guesthouses (Heuriger). Peak August — book at least 4–6 weeks ahead. Confirm e-bike charging on booking.</div>
-      <a class="accom-link" href="https://www.donau-oesterreich.at/en/danube-cycle-path/bed-bike-businesses">→ Bett+Bike Austria</a>
-    </div>
-    <div class="accom-card">
-      <div class="accom-city">Nights 6–7 · 21–22 Aug</div>
-      <h3>Vienna</h3>
-      <span class="accom-type type-hotel">City Hotel</span>
-      <div class="accom-notes">2nd or 1st district (Innere Stadt / Leopoldstadt) — close to the Danube, good access for departure. Secure indoor bike storage is critical for the ST5. Ruby Hotels or Motel One Vienna are cyclist-friendly mid-range options.</div>
-      <a class="accom-link" href="https://www.booking.com/city/at/vienna.html">→ Vienna hotels</a>
-    </div>
-    <div class="accom-card">
-      <div class="accom-city">Night 8 · 23 Aug</div>
-      <h3>Dunajská riviéra, Slovakia</h3>
-      <span class="accom-type type-camping">Camping / Pension</span>
-      <div class="accom-notes">Riverside settlement in Slovakia. Basic pensions and campsites. Free camping is permitted here. Confirm e-bike charging is available — don't assume. Call ahead.</div>
-      <a class="accom-link" href="https://www.danube-cycle-path.com/danube-hungury-slovakia-camp-sites.html">→ Slovakia campsites</a>
-    </div>
-    <div class="accom-card">
-      <div class="accom-city">Night 9 · 24 Aug</div>
-      <h3>Molaj / Komárno area</h3>
-      <span class="accom-type type-camping">Pension / Camping</span>
-      <div class="accom-notes">Rural Hungary–Slovakia border. Limited options. Komárno (slightly off-route) has better infrastructure if needed. Book as far ahead as possible.</div>
-      <a class="accom-link" href="https://www.danube-cycle-path.com/hotels-bratislava-budapest.html">→ Route hotels</a>
-    </div>
-    <div class="accom-card">
-      <div class="accom-city">Nights 10–11 · 25–26 Aug</div>
-      <h3>Budapest</h3>
-      <span class="accom-type type-hotel">City Hotel</span>
-      <div class="accom-notes">5th or 7th district (Jewish Quarter) — best food and nightlife. Departure is from <strong>Budapest-Nyugati</strong> (not Keleti) — confirm hotel proximity or plan the morning transfer. Secure indoor bike storage essential — ask explicitly before booking.</div>
-      <a class="accom-link" href="https://www.booking.com/city/hu/budapest.html">→ Budapest hotels</a>
-    </div>
-    <div class="accom-card" style="border-color:rgba(62,207,142,0.3);background:rgba(62,207,142,0.03);">
-      <div class="accom-city">Departure · 27 Aug</div>
-      <h3>Budapest → Berlin</h3>
-      <span class="accom-type type-certified" style="">✓ RJ 174 · 07:30 · Budapest-Nyugati</span>
-      <div class="accom-notes">Ticket + bike reservation confirmed (Wg. 255, Pl. 82, window, WiFi). Arrives Berlin Hbf 18:29. Departs <strong>Budapest-Nyugati</strong> — not Keleti. Plan hotel location and morning transfer accordingly. Code: <strong>73GLEFRQ</strong>.</div>
+  <div class="card">
+    <div class="day">
+      <div class="daybadge"><div class="dow">Sun</div><div class="dnum">16</div><div class="mon">Aug</div></div>
+      <div class="daymain">
+        <div class="dayroute">Landshut &rarr; Vilshofen an der Donau</div>
+        <div class="daynote">Ride 2. Cross-country to meet the Danube. Sunday, so carry food: village shops will be shut.</div>
+        <div class="daymeta"><span class="pill km">93 km</span><span class="pill el">&uarr; 277 m</span></div>
+        <div class="bed"><b>Bed:</b> Hotel/Pension am Stadtplatz &mdash; Radlkeller (bike cellar) + charging, on the historic square.<span class="alt">Alt: Gasthof Wolferstetter, or Pension Sagerer</span></div>
+      </div>
     </div>
   </div>
 
-  <!-- FOOTER -->
-  <div class="footer">
-    <div>Generated from Komoot GPX data · 8 stages · 750km · Stromer ST5 2x 983Wh · VIN TBNST5S700SRL0749</div>
-    <div>HUK-COBURG 670/521924-Q · Plate 262 KRL · Valid to Feb 2027 · Vollkasko via MLF Mercator-Leasing 1082429</div>
+  <div class="card">
+    <div class="day">
+      <div class="daybadge"><div class="dow">Mon</div><div class="dnum">17</div><div class="mon">Aug</div></div>
+      <div class="daymain">
+        <div class="dayroute">Vilshofen &rarr; Linz</div>
+        <div class="daynote">Ride 3. The big one: longest and hilliest, crossing into Austria at Passau. Timed to land right before the rest day.</div>
+        <div class="daymeta"><span class="pill km">119 km</span><span class="pill el">&uarr; 607 m</span></div>
+        <div class="bed"><b>Bed:</b> ARCOTEL Nike Linz, Untere Donaulande &mdash; on the Danube and on the cycle path, spa/sauna, 10 min walk to the old town. <b>Book both nights.</b><span class="alt">Alt: Leonardo Boutique Hotel Linz City (bike in the underground garage)</span></div>
+      </div>
+    </div>
   </div>
 
-</div>
+  <div class="card rest">
+    <div class="day">
+      <div class="daybadge"><div class="dow">Tue</div><div class="dnum">18</div><div class="mon">Aug</div></div>
+      <div class="daymain">
+        <div class="dayroute">Rest day &middot; Linz</div>
+        <div class="daynote">Legs up, laundry, bike once-over. Write and post the first Volkskrant piece.</div>
+        <div class="daymeta"><span class="pill rest">Rest</span></div>
+        <div class="bed"><b>Bed:</b> Linz, second night, same hotel</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="day">
+      <div class="daybadge"><div class="dow">Wed</div><div class="dnum">19</div><div class="mon">Aug</div></div>
+      <div class="daymain">
+        <div class="dayroute">Linz &rarr; Ybbs an der Donau</div>
+        <div class="daynote">Ride 4. Flat riverside day to ease back in.</div>
+        <div class="daymeta"><span class="pill km">82 km</span><span class="pill el">&uarr; 153 m</span></div>
+        <div class="bed"><b>Bed:</b> Donau Lodge Ybbs &mdash; Bett+Bike, directly on the Donauradweg in the old town, dedicated bike storage room, balconies over the Danube.<span class="alt">Alt: Stop &amp; Sleep Ybbs, or Wohnen beim Backer (covered bike parking)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="day">
+      <div class="daybadge"><div class="dow">Thu</div><div class="dnum">20</div><div class="mon">Aug</div></div>
+      <div class="daymain">
+        <div class="dayroute">Ybbs &rarr; Tulln an der Donau</div>
+        <div class="daynote">Ride 5. Through the Wachau (Melk, Krems). Note: the GPX ends at "Kronau", which has nowhere to stay &mdash; carry on ~4 km to Tulln.</div>
+        <div class="daymeta"><span class="pill km">~100 km</span><span class="pill el">&uarr; 272 m</span></div>
+        <div class="bed"><b>Bed:</b> Hotel Nibelungenhof, Donaulande 34 &mdash; on the Danube and the cycle path, lockable bike shed, 2 min to the centre. From EUR 70 pp.<span class="tel">+43 2272 62658</span><span class="alt">Alt: Junges Hotel Tulln, EUR 38 pp, Fahrradgarage + cyclists' breakfast</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="day">
+      <div class="daybadge"><div class="dow">Fri</div><div class="dnum">21</div><div class="mon">Aug</div></div>
+      <div class="daymain">
+        <div class="dayroute">Tulln &rarr; Vienna (Leopoldstadt)</div>
+        <div class="daynote">Ride 6. Short half-day, into Vienna by early afternoon with the rest of the day free.</div>
+        <div class="daymeta"><span class="pill km">48 km</span><span class="pill el">&uarr; 123 m</span></div>
+        <div class="bed"><b>Bed:</b> Vienna &mdash; your own booking. <b>Two nights.</b></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card rest">
+    <div class="day">
+      <div class="daybadge"><div class="dow">Sat</div><div class="dnum">22</div><div class="mon">Aug</div></div>
+      <div class="daymain">
+        <div class="dayroute">Rest day &middot; Vienna</div>
+        <div class="daynote">One full day off the bike. Roll out fresh on Sunday.</div>
+        <div class="daymeta"><span class="pill rest">Rest</span></div>
+        <div class="bed"><b>Bed:</b> Vienna, second night</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="day">
+      <div class="daybadge"><div class="dow">Sun</div><div class="dnum">23</div><div class="mon">Aug</div></div>
+      <div class="daymain">
+        <div class="dayroute">Vienna &rarr; Trstena na Ostrove (SK)</div>
+        <div class="daynote">Ride 7. Into Slovakia, skirting Bratislava, onto the Zitny ostrov Danube island. Longest gap in services on the whole trip &mdash; carry food and water.</div>
+        <div class="daymeta"><span class="pill km">102 km</span><span class="pill el">&uarr; 122 m</span></div>
+        <div class="bed"><b>Bed:</b> Penzion Saman, Trstena &mdash; <b>only 4 rooms in the village, book early and get it in writing.</b><span class="alt">Safer alt: Hotel Kormoran, Samorin-Cilistov (4-star, 154 beds, on the cycle route, sauna) &mdash; stops you ~20 km short, +421 31 590 91 00</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="day">
+      <div class="daybadge"><div class="dow">Mon</div><div class="dnum">24</div><div class="mon">Aug</div></div>
+      <div class="daymain">
+        <div class="dayroute">Trstena na Ostrove &rarr; Labatlan (HU)</div>
+        <div class="daynote">Ride 8. Cross into Hungary, flat riverside kilometres.</div>
+        <div class="daymeta"><span class="pill km">91 km</span><span class="pill el">&uarr; 98 m</span></div>
+        <div class="bed"><b>Bed:</b> Panorama Szalloda es Etterem, on the Dunapart in Labatlan.<span class="alt">Better option: push 15 km on to <b>Esztergom</b> (Basilica, real choice of beds) &mdash; makes tomorrow ~65 km instead of ~80. Bazilika alatt Panzio / eHotel Panzio / Sasi Panzio</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="day">
+      <div class="daybadge"><div class="dow">Tue</div><div class="dnum">25</div><div class="mon">Aug</div></div>
+      <div class="daymain">
+        <div class="dayroute">Labatlan &rarr; Budapest</div>
+        <div class="daynote">Ride 9. The Danube Bend via Esztergom, Visegrad and Szentendre, entering Budapest through Obuda. <b>Not yet mapped in Komoot &mdash; do this before you go.</b></div>
+        <div class="daymeta"><span class="pill km">~80 km</span><span class="pill el">rolling</span></div>
+        <div class="bed"><b>Bed:</b> Budapest &mdash; your own booking. <b>Two nights.</b></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card rest">
+    <div class="day">
+      <div class="daybadge"><div class="dow">Wed</div><div class="dnum">26</div><div class="mon">Aug</div></div>
+      <div class="daymain">
+        <div class="dayroute">Budapest &middot; buffer day</div>
+        <div class="daynote">Spare day. Post the finish. Pre-pack the bike tonight for the early train.</div>
+        <div class="daymeta"><span class="pill rest">Rest</span></div>
+        <div class="bed"><b>Bed:</b> Budapest, second night</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="day">
+      <div class="daybadge"><div class="dow">Thu</div><div class="dnum">27</div><div class="mon">Aug</div></div>
+      <div class="daymain">
+        <div class="dayroute">Depart Budapest</div>
+        <div class="daynote">Departure date unchanged. <b>RJ 174 departs Budapest-Nyugati 07:30.</b> Nyugati is roughly 8 km from Obuda, so leave by ~06:30 and confirm early-morning access to the bike store the night before.</div>
+        <div class="daymeta"><span class="pill tr">Train &middot; RJ 174 dep. 07:30</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note-box">
+    <b>Things that will bite if you forget them</b>
+    <ul>
+      <li><b>Day 3 is the hard one</b> (119 km, 607 m). It sits directly before the Linz rest day, which is the right place for it, but do not start it late.</li>
+      <li><b>Trstena na Ostrove has four rooms.</b> That is the single biggest risk on the route. Either book far ahead or plan to stop at Samorin instead.</li>
+      <li><b>Kronau is not a stop.</b> Your day-5 track ends there and there is nowhere to sleep. Tulln is 4 km further.</li>
+      <li><b>Map the Labatlan to Budapest leg</b> in Komoot before departure, and download every stage offline.</li>
+      <li><b>Hungary is not on the euro.</b> Carry some forints for the last three days.</li>
+      <li><b>Two border crossings on the bike:</b> Germany to Austria at Passau on day 3, Austria to Slovakia to Hungary across days 7 and 8.</li>
+      <li>Ask every hotel two questions when booking: lockable indoor bike space overnight, and late check-in.</li>
+    </ul>
+  </div>
+
+  <footer>Distances measured from the Komoot GPX &middot; accommodation verified 21 Jul 2026 &middot; full options list in bikepacking-accommodation-aug2026.html</footer>
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+var route = [[48.88601, 11.19871], [48.88241, 11.204], [48.87953, 11.21538], [48.87122, 11.2209], [48.86074, 11.22705], [48.86022, 11.23919], [48.85769, 11.24122], [48.85623, 11.25113], [48.84973, 11.2547], [48.84166, 11.26201], [48.82995, 11.27251], [48.82548, 11.27566], [48.81937, 11.27676], [48.81421, 11.28535], [48.80519, 11.28922], [48.80156, 11.29377], [48.79209, 11.31226], [48.78692, 11.33928], [48.7811, 11.36604], [48.77502, 11.3831], [48.77114, 11.3895], [48.76661, 11.3979], [48.76618, 11.41123], [48.7636, 11.41728], [48.75877, 11.42536], [48.75599, 11.4289], [48.75047, 11.43269], [48.74312, 11.43462], [48.73067, 11.44239], [48.72356, 11.44621], [48.71594, 11.46425], [48.71636, 11.47386], [48.71714, 11.4922], [48.71285, 11.49466], [48.70746, 11.50206], [48.70827, 11.54307], [48.70058, 11.59172], [48.70396, 11.60879], [48.7074, 11.62534], [48.70978, 11.64571], [48.71214, 11.66797], [48.71026, 11.6901], [48.70232, 11.70233], [48.69266, 11.70883], [48.69237, 11.71893], [48.69803, 11.74392], [48.69407, 11.76223], [48.68277, 11.78259], [48.67755, 11.79035], [48.67513, 11.79982], [48.67223, 11.81671], [48.67417, 11.82902], [48.6754, 11.83809], [48.67248, 11.84935], [48.67273, 11.86963], [48.67301, 11.87782], [48.66942, 11.89693], [48.67138, 11.91697], [48.67304, 11.93141], [48.66884, 11.9556], [48.66519, 11.9658], [48.65343, 11.96844], [48.64481, 11.9755], [48.63263, 11.97876], [48.62236, 11.98618], [48.61476, 11.99744], [48.60476, 12.00338], [48.59581, 12.0181], [48.58968, 12.02386], [48.58729, 12.03439], [48.57996, 12.06006], [48.571, 12.07253], [48.56159, 12.09135], [48.55619, 12.10106], [48.55172, 12.10496], [48.54617, 12.11455], [48.54427, 12.12029], [48.5461, 12.13549], [48.54812, 12.15353], [48.54771, 12.15628], [48.54771, 12.15628], [48.54362, 12.16556], [48.54653, 12.17617], [48.55776, 12.18326], [48.56685, 12.19744], [48.57605, 12.21748], [48.58301, 12.22334], [48.59441, 12.2719], [48.59525, 12.29067], [48.60183, 12.30261], [48.60356, 12.31774], [48.60686, 12.33028], [48.61384, 12.349], [48.61964, 12.39093], [48.62369, 12.41826], [48.62494, 12.43997], [48.62884, 12.45995], [48.63251, 12.48384], [48.63298, 12.49454], [48.63481, 12.5168], [48.64313, 12.53726], [48.64644, 12.5591], [48.65162, 12.59875], [48.65644, 12.60536], [48.66027, 12.62346], [48.66426, 12.65127], [48.66881, 12.66889], [48.67298, 12.67725], [48.6741, 12.68938], [48.6739, 12.69519], [48.67242, 12.70139], [48.66643, 12.7054], [48.65878, 12.70889], [48.64738, 12.72933], [48.63579, 12.74966], [48.625, 12.76113], [48.61994, 12.77337], [48.62692, 12.80247], [48.63219, 12.82771], [48.63353, 12.84562], [48.6339, 12.85887], [48.62948, 12.88474], [48.6296, 12.90731], [48.61808, 12.93939], [48.6183, 12.95065], [48.62198, 12.96013], [48.62074, 12.96933], [48.61838, 12.97968], [48.61544, 12.98635], [48.60983, 13.00274], [48.61015, 13.02107], [48.60802, 13.0372], [48.60645, 13.04715], [48.60407, 13.08069], [48.60218, 13.10218], [48.60629, 13.12171], [48.61062, 13.13738], [48.61188, 13.1531], [48.61715, 13.16892], [48.62676, 13.17506], [48.63289, 13.18534], [48.63402, 13.18642], [48.63402, 13.18642], [48.63464, 13.18801], [48.63607, 13.19571], [48.62748, 13.21379], [48.62415, 13.22077], [48.62157, 13.22515], [48.61371, 13.24047], [48.6086, 13.26733], [48.61312, 13.28313], [48.60422, 13.32104], [48.60115, 13.35987], [48.59798, 13.37935], [48.59063, 13.39582], [48.58349, 13.40822], [48.57756, 13.41493], [48.57368, 13.4185], [48.5748, 13.44866], [48.57497, 13.46058], [48.57164, 13.46657], [48.57069, 13.47509], [48.57169, 13.48853], [48.5743, 13.49939], [48.58458, 13.50665], [48.5816, 13.52686], [48.57406, 13.53936], [48.56555, 13.55744], [48.5606, 13.58449], [48.56623, 13.60257], [48.55714, 13.61761], [48.54939, 13.64622], [48.5363, 13.65864], [48.52103, 13.69712], [48.51369, 13.72], [48.51069, 13.72793], [48.50231, 13.73488], [48.49441, 13.73758], [48.48547, 13.75079], [48.47806, 13.76339], [48.46825, 13.7767], [48.46371, 13.79869], [48.45984, 13.80908], [48.4535, 13.81575], [48.44004, 13.83406], [48.42999, 13.84987], [48.42372, 13.87029], [48.43016, 13.87647], [48.43629, 13.86709], [48.44781, 13.85907], [48.44389, 13.87475], [48.44889, 13.89829], [48.44572, 13.9186], [48.43306, 13.92143], [48.41494, 13.92643], [48.40205, 13.94206], [48.41506, 13.96865], [48.41993, 13.98546], [48.41351, 13.99827], [48.39646, 14.01118], [48.37863, 14.02621], [48.36337, 14.02416], [48.34237, 14.02069], [48.33128, 14.03083], [48.31768, 14.06593], [48.30921, 14.10695], [48.31486, 14.14922], [48.31518, 14.16255], [48.32312, 14.16995], [48.33085, 14.17736], [48.33468, 14.18553], [48.32975, 14.19481], [48.31934, 14.20912], [48.31168, 14.22851], [48.31138, 14.23625], [48.31161, 14.24371], [48.30799, 14.26529], [48.30794, 14.27927], [48.30812, 14.27676], [48.30812, 14.27676], [48.30813, 14.28068], [48.31043, 14.28304], [48.30624, 14.2866], [48.30588, 14.29223], [48.30363, 14.29658], [48.30009, 14.30179], [48.29646, 14.30735], [48.29301, 14.31362], [48.28881, 14.32128], [48.28593, 14.33829], [48.28741, 14.34623], [48.27563, 14.35936], [48.27038, 14.38464], [48.25809, 14.40612], [48.25842, 14.42305], [48.261, 14.433], [48.26581, 14.44592], [48.26259, 14.45535], [48.25631, 14.46294], [48.25279, 14.47397], [48.25081, 14.48412], [48.24875, 14.49198], [48.24676, 14.50103], [48.2447, 14.50682], [48.23961, 14.51863], [48.23712, 14.54456], [48.237, 14.55269], [48.23733, 14.56617], [48.2274, 14.57839], [48.21166, 14.59863], [48.19579, 14.61494], [48.173, 14.65095], [48.16864, 14.68806], [48.17422, 14.70299], [48.18446, 14.71293], [48.19106, 14.72359], [48.19336, 14.74644], [48.19211, 14.75429], [48.19022, 14.76885], [48.18265, 14.77663], [48.1909, 14.81204], [48.19146, 14.83089], [48.198, 14.84491], [48.21292, 14.85555], [48.22368, 14.85329], [48.22818, 14.86122], [48.2332, 14.87974], [48.23132, 14.89071], [48.23192, 14.90414], [48.23323, 14.91907], [48.23093, 14.94129], [48.22275, 14.94979], [48.20867, 14.95824], [48.19977, 14.97658], [48.19523, 15.00605], [48.19686, 15.02414], [48.19901, 15.03837], [48.19838, 15.05098], [48.19071, 15.07522], [48.18726, 15.08203], [48.17942, 15.09103], [48.17539, 15.09855], [48.17418, 15.10402], [48.17418, 15.10402], [48.18605, 15.11254], [48.19647, 15.10695], [48.20328, 15.1124], [48.21194, 15.13193], [48.21404, 15.14437], [48.21511, 15.16333], [48.21758, 15.1814], [48.21668, 15.21177], [48.21814, 15.23309], [48.22483, 15.25885], [48.22908, 15.29114], [48.23044, 15.3042], [48.23682, 15.3265], [48.24439, 15.34145], [48.23868, 15.34948], [48.242, 15.35021], [48.25318, 15.36968], [48.25898, 15.37899], [48.26794, 15.38203], [48.27793, 15.39624], [48.29145, 15.40701], [48.30303, 15.41108], [48.31407, 15.41311], [48.32615, 15.41178], [48.34366, 15.40964], [48.3564, 15.41401], [48.36637, 15.43383], [48.37289, 15.45141], [48.38835, 15.46989], [48.39699, 15.48226], [48.40089, 15.48939], [48.40017, 15.50548], [48.39005, 15.51686], [48.38264, 15.52629], [48.38677, 15.55533], [48.39008, 15.56491], [48.39263, 15.57486], [48.3931, 15.58007], [48.39444, 15.59224], [48.39406, 15.60212], [48.39832, 15.61219], [48.39926, 15.63861], [48.37955, 15.66961], [48.38668, 15.70411], [48.37066, 15.7411], [48.3711, 15.76041], [48.37949, 15.79416], [48.37841, 15.84373], [48.36858, 15.85505], [48.36536, 15.87457], [48.36289, 15.8733], [48.35807, 15.88056], [48.35398, 15.88902], [48.34695, 15.91372], [48.33977, 15.93593], [48.33197, 15.94578], [48.33013, 15.95397], [48.3314, 15.95855], [48.33055, 15.96921], [48.32939, 15.98229], [48.33074, 15.99208], [48.32716, 16.00424], [48.32651, 16.00856], [48.32651, 16.00856], [48.32707, 16.0268], [48.32653, 16.03081], [48.33154, 16.04264], [48.33361, 16.05191], [48.33394, 16.06206], [48.33342, 16.08385], [48.33367, 16.11794], [48.33639, 16.15717], [48.339, 16.17167], [48.34714, 16.21182], [48.35047, 16.23955], [48.34966, 16.24837], [48.35173, 16.25955], [48.35059, 16.28283], [48.33736, 16.29863], [48.31691, 16.31685], [48.31001, 16.32823], [48.30504, 16.33476], [48.30093, 16.33557], [48.29169, 16.34381], [48.2842, 16.34743], [48.27411, 16.35763], [48.25894, 16.36855], [48.25075, 16.37176], [48.23315, 16.361], [48.21934, 16.3688], [48.2152, 16.36551], [48.21071, 16.37124], [48.20915, 16.37289], [48.21226, 16.37683], [48.21372, 16.38275], [48.21697, 16.38895], [48.21683, 16.39224], [48.21786, 16.40617], [48.21516, 16.416], [48.20866, 16.42689], [48.20556, 16.43139], [48.20569, 16.43223], [48.20569, 16.43223], [48.20748, 16.43731], [48.20734, 16.43845], [48.19637, 16.45514], [48.1934, 16.46642], [48.18497, 16.47937], [48.17776, 16.49289], [48.16973, 16.51169], [48.15328, 16.53543], [48.13709, 16.59486], [48.13715, 16.63238], [48.13414, 16.81977], [48.14601, 16.88317], [48.14122, 16.91122], [48.14534, 16.92687], [48.15037, 16.94377], [48.14658, 16.95703], [48.14334, 16.98125], [48.13768, 17.00378], [48.13264, 17.0175], [48.12189, 17.04603], [48.1221, 17.06562], [48.11521, 17.07722], [48.11418, 17.09419], [48.1105, 17.10822], [48.10894, 17.11651], [48.10029, 17.12061], [48.09671, 17.13162], [48.07741, 17.13384], [48.08769, 17.1688], [48.06669, 17.17279], [48.05546, 17.23017], [48.03339, 17.24748], [48.01954, 17.28987], [48.00634, 17.32514], [47.98068, 17.39146], [47.92402, 17.48247], [47.92402, 17.48247], [47.89384, 17.52909], [47.88322, 17.54667], [47.82523, 17.60753], [47.81137, 17.63012], [47.79861, 17.65585], [47.79603, 17.67323], [47.78895, 17.69241], [47.76127, 17.73363], [47.75428, 17.76603], [47.75229, 17.79683], [47.74748, 17.827], [47.74648, 17.87132], [47.7494, 17.91199], [47.75854, 17.96182], [47.75359, 18.01074], [47.75953, 18.06023], [47.75908, 18.08823], [47.75436, 18.10687], [47.75587, 18.12241], [47.76251, 18.1298], [47.76205, 18.14395], [47.75066, 18.15345], [47.7465, 18.20518], [47.73629, 18.28538], [47.74469, 18.34024], [47.74637, 18.36852], [47.75262, 18.38826], [47.75657, 18.41511], [47.76807, 18.44468], [47.76283, 18.47702], [47.75167, 18.48408], [47.7534, 18.48007]];
+var budapest = [47.4979, 19.0402];
+var map = L.map('map', {scrollWheelZoom:false});
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom:18, attribution:'&copy; OpenStreetMap'
+}).addTo(map);
+var line = L.polyline(route, {color:'#0a84ff', weight:4, opacity:0.85}).addTo(map);
+var last = route[route.length-1];
+L.polyline([last, budapest], {color:'#0a84ff', weight:3, opacity:0.7, dashArray:'6,8'}).addTo(map);
+map.fitBounds(line.getBounds().extend(budapest), {padding:[24,24]});
+var stops = [
+  ["Eichstatt (start)", 48.88601, 11.19871],
+  ["Landshut", 48.54771, 12.15628],
+  ["Vilshofen", 48.63402, 13.18642],
+  ["Linz (rest)", 48.30812, 14.27676],
+  ["Ybbs", 48.17418, 15.10402],
+  ["Tulln", 48.33194, 16.05861],
+  ["Vienna (2 nights)", 48.20569, 16.43223],
+  ["Trstena na Ostrove", 47.92402, 17.48247],
+  ["Labatlan", 47.7534, 18.48007],
+  ["Budapest (finish)", 47.4979, 19.0402]
+];
+stops.forEach(function(s){
+  L.circleMarker([s[1],s[2]], {radius:5, color:'#fff', weight:2, fillColor:'#ff375f', fillOpacity:1})
+    .addTo(map).bindPopup('<b>'+s[0]+'</b>');
+});
+
+// Register the service worker so the itinerary and viewed map tiles work offline.
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register('./sw.js').catch(function() {});
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').catch(function (e) {
+      console.warn('SW registration failed', e);
+    });
   });
 }
 </script>
